@@ -1,20 +1,15 @@
 from flask import Flask
-from src.config.data_base import init_db
+from flask_jwt_extended import JWTManager
 from src.routes import init_routes
+from src.config.data_base import app, init_db, db
 
-def create_app():
-    """
-    Função que cria e configura a aplicação Flask.
-    """
-    app = Flask(__name__)
+app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  # Substitua por uma chave secreta segura
+jwt = JWTManager(app)
 
-    init_db(app)
-
-    init_routes(app)
-
-    return app
-
-app = create_app()
+init_routes(app)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    with app.app_context():
+        init_db(app)
+        db.create_all()  # Cria as tabelas no banco de dados
+    app.run(host=app.config['HOST'], port=app.config['PORT'], debug=app.config['DEBUG'])
