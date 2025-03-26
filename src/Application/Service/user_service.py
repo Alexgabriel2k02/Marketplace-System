@@ -26,9 +26,14 @@ class UserService:
 
     @staticmethod
     def activate_seller(data):
-        # Lógica para ativar o seller no banco de dados
-        user_id = ...  # Obtenha o ID do usuário do banco de dados
-        if user_id:
-            return {"user_id": user_id}  # Retorne o ID do usuário
-        else:
-            return None
+        """
+        Lógica para ativar um seller.
+        """
+        phone_number = data.get('celular')
+        verification_code = data.get('codigo')
+        user = User.query.filter_by(phone=phone_number).first()
+        if user and user.verification_code == verification_code:
+            user.status = "Ativo"
+            db.session.commit()
+            return True
+        return False
