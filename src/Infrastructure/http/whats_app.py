@@ -2,8 +2,8 @@ import random
 from twilio.rest import Client
 import datetime
 
-account_sid = 'your account_sid'  # precisamos substituir pelo seu account_sid do Twilio
-auth_token = 'your auth_token'  # precisamos substituir pelo seu token de autenticação do Twilio
+account_sid = 'AC963a4c75837fc82e2292fa144c8670fd'  # Substitua pelo seu account_sid do Twilio
+auth_token = '0ca3fc15d2df282e4eb5954fee556c39'  # Substitua pelo seu token de autenticação do Twilio
 client = Client(account_sid, auth_token)
 twilio_numero_whats = 'whatsapp:+14155238886'
 
@@ -23,30 +23,37 @@ def send_whatsapp_message(phone_number, message):
 def generate_activation_code():
     return str(random.randint(1000, 9999))
 
-def send_verification_code(phone_numbers, verification_code):
+def send_verification_code(phone_number, verification_code):
     message_body = (
         'Olá,\n'
         'Este é seu código de verificação: ' + verification_code + '\n'
         'Válido por 45 minutos'
     )
-    for phone_number in phone_numbers:
-        if send_whatsapp_message(phone_number, message_body):
-            print(f'Mensagem enviada para {phone_number} com sucesso')
-            try:
-                message_sid = client.messages.list(to=f'whatsapp:{phone_number}', limit=1)[0].sid
-                message_status = client.messages(message_sid).fetch().status
-                print(f'Status da mensagem: {message_status}')
-            except Exception as e:
-                print(f'Erro ao buscar status da mensagem: {e}')
-        else:
-            print(f'Erro ao enviar mensagem para {phone_number}')
+    try:
+        # Certifique-se de que o número é uma string
+        if isinstance(phone_number, list):
+            phone_number = phone_number[0]  # Extrai o número da lista, se necessário
+
+        # Envia a mensagem
+        message = client.messages.create(
+            from_=twilio_numero_whats,
+            body=message_body,
+            to=f'whatsapp:{phone_number}'  # Certifique-se de que o número está no formato correto
+        )
+        print(f'Mensagem enviada para {phone_number} com sucesso. SID: {message.sid}')
+
+        # Busca o status da mensagem
+        message_status = client.messages(message.sid).fetch().status
+        print(f'Status da mensagem: {message_status}')
+        return True
+    except Exception as e:
+        print(f'Erro ao enviar mensagem ou buscar status: {e}')
+        return False
 
 if __name__ == "__main__":
-    # Lista de números de telefone para os quais você deseja enviar o código de verificação
-    phone_numbers = [""]#adicionar os números de telefone
-
-    # Gerar um código de ativação
+    phone_number = "+5511975682004"  # Substitua pelo número de telefone de destino
     verification_code = generate_activation_code()
-
-    # Enviar o código de verificação para os números de telefone
-    send_verification_code(phone_numbers, verification_code)
+    if send_verification_code(phone_number, verification_code):
+        print("Mensagem enviada com sucesso!")
+    else:
+        print("Falha ao enviar a mensagem.")
