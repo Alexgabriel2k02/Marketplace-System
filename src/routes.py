@@ -22,17 +22,19 @@ def init_routes(app):
     @app.route('/api/auth/login', methods=['POST'])
     def login():
         email = request.json.get('email', None)
-        password = request.json.get('password', None)
+        password = request.json.get('senha', None)
+
         # Verifique as credenciais do usuário
         user = User.query.filter_by(email=email).first()
         if user and user.password == password:  # Em produção, use hashing para senhas
+            # Use o e-mail como identity (string) e adicione claims extras, se necessário
             access_token = create_access_token(
                 identity=email,  # O identity agora é uma string
                 additional_claims={"name": user.name, "status": user.status}
             )
             return jsonify(access_token=access_token), 200
-        else:
-            return jsonify({"mensagem": "Credenciais inválidas"}), 401
+
+        return jsonify({"mensagem": "Credenciais inválidas"}), 401
 
     @app.route('/user', methods=['POST'])
     @jwt_required()
@@ -47,3 +49,11 @@ def init_routes(app):
                 "mensagem": "Falha ao registrar"
             }), 400)
 
+    # Nova rota protegida para teste
+    @app.route('/api/protected', methods=['GET'])
+    @jwt_required()
+    def protected():
+        current_user = get_jwt_identity()  # Agora retorna apenas o e-mail
+        return jsonify({
+            "mensagem": f"Bem-vindo, {current_user}! Esta é uma rota protegida."
+        }), 200
