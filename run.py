@@ -9,7 +9,5 @@ jwt = JWTManager(app)
 init_routes(app)
 
 if __name__ == '__main__':
-    with app.app_context():
-        init_db()  
-        db.create_all()  # Cria as tabelas no banco de dados
+    init_db(app)  # Passa o app para inicializar o banco de dados
     app.run(host=app.config['HOST'], port=app.config['PORT'], debug=app.config['DEBUG'])
