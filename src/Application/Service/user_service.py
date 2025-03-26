@@ -35,5 +35,5 @@ class UserService:
         if user and user.verification_code == verification_code:
             user.status = "Ativo"
             db.session.commit()
-            return True
+            return {"user_id": user.id}  # Retorna o ID do usuário como parte do resultado
         return False
