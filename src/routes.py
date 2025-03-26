@@ -25,8 +25,11 @@ def init_routes(app):
         password = request.json.get('password', None)
         # Verifique as credenciais do usuário
         user = User.query.filter_by(email=email).first()
-        if user and user.password == password:  # Compara a senha diretamente
-            access_token = create_access_token(identity=email)
+        if user and user.password == password:  # Em produção, use hashing para senhas
+            access_token = create_access_token(
+                identity=email,  # O identity agora é uma string
+                additional_claims={"name": user.name, "status": user.status}
+            )
             return jsonify(access_token=access_token), 200
         else:
             return jsonify({"mensagem": "Credenciais inválidas"}), 401
