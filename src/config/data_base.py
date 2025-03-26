@@ -15,5 +15,6 @@ def init_db(app):
     """
     Inicializa a base de dados com o app Flask e o SQLAlchemy.
     """
-    db.init_app(app)
+    # Remova a chamada redundante db.init_app(app)
+    pass
 
