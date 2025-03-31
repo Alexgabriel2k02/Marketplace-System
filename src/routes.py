@@ -22,7 +22,7 @@ def init_routes(app):
     @app.route('/api/auth/login', methods=['POST'])
     def login():
         email = request.json.get('email', None)
-        password = request.json.get('senha', None)
+        password = request.json.get('password', None)
 
         # Verifique as credenciais do usuário
         user = User.query.filter_by(email=email).first()
@@ -36,20 +36,7 @@ def init_routes(app):
 
         return jsonify({"mensagem": "Credenciais inválidas"}), 401
 
-    @app.route('/user', methods=['POST'])
-    @jwt_required()
-    def register_user():
-        result = UserController.register()
-        if result:  # Supondo que o método register retorna True em caso de sucesso
-            return make_response(jsonify({
-                "mensagem": "Registrado com sucesso"
-            }), 200)
-        else:
-            return make_response(jsonify({
-                "mensagem": "Falha ao registrar"
-            }), 400)
-
-    # Nova rota protegida para teste
+    # rota protegida para teste
     @app.route('/api/protected', methods=['GET'])
     @jwt_required()
     def protected():
