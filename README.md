@@ -5,6 +5,7 @@ Desenvolver um sistema para gestão de estoque e vendas de mini mercados, garant
 
 ---
 
+
 ## 🚀 Funcionalidades Principais
 
 ### 1️⃣ Cadastro de Mini Mercado (Seller)
@@ -61,6 +62,48 @@ Um seller autenticado pode:
 - Produtos inativados não podem ser vendidos.
 - Sellers inativos não podem realizar vendas.
 
+---
+
+## 🛠️ Configuração do Banco de Dados (MySQL)
+
+### Pré-requisitos
+1. Certifique-se de que o MySQL está instalado e em execução no seu sistema.
+2. Crie um banco de dados para o projeto:
+   ```sql
+   CREATE DATABASE nome_do_banco_de_sua_preferencia;
+   ```
+
+3. Crie um usuário no MySQL (se necessário) ou use o usuário padrão `root`.
+
+---
+
+### Configuração no Projeto
+1. No arquivo `src/config/data_base.py`, configure a URI de conexão com o MySQL:
+   ```python
+   app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://usuario:senha@host:porta/nome_do_banco'
+   ```
+   Substitua:
+   - `usuario`: Pelo nome do usuário do MySQL (ex.: `root`).
+   - `senha`: Pela senha do usuário.
+   - `host`: Pelo endereço do servidor MySQL (ex.: `localhost`).
+   - `porta`: Pela porta do MySQL (padrão é `3306`).
+   - `nome_do_banco`: Pelo nome do banco de dados criado (ex.: `nome_do_banco_de_sua_preferencia`).
+
+2. Instale o driver `pymysql` para conectar ao MySQL:
+   ```bash
+   pip install pymysql
+   ```
+
+3. Execute o projeto para inicializar as tabelas no banco de dados:
+   ```bash
+   python run.py
+   ```
+
+4. Verifique no MySQL se as tabelas foram criadas:
+   ```sql
+   USE nome_do_banco_de_sua_preferencia;
+   SHOW TABLES;
+   ```
 ---
 
 ## 📡 Endpoints da API
@@ -130,10 +173,10 @@ Um seller autenticado pode:
 ---
 
 ## 🛠️ Tecnologias Utilizadas
-- **Back-end:** Kotlin + Spring Boot
+- **Back-end:** Python (Flask)
 - **Front-end:** React.js
-- **Banco de Dados:** MySQL ou PostgreSQL
-- **Autenticação:** JWT ou OAuth
+- **Banco de Dados:** MySQL 
+- **Autenticação:** JWT ou 
 - **Mensageria:** Twilio (para envio do código de ativação no WhatsApp)
 
 ---
