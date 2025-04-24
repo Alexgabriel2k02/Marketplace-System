@@ -53,7 +53,7 @@ def send_verification_code(phone_number, verification_code):
 
 
 if __name__ == "__main__":
-    phone_number = "+5511975682004"  # Substitua pelo número de telefone de destino
+    phone_number = "phone"  # Substitua pelo número de telefone de destino
     verification_code = generate_activation_code()
     if send_verification_code(phone_number, verification_code):
         print("Mensagem enviada com sucesso!")
