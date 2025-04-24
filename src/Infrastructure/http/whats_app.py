@@ -3,7 +3,7 @@ from twilio.rest import Client
 import datetime
 
 account_sid = "sua conta "  # Substitua pelo seu account_sid do Twilio
-auth_token = "seu tokem"  # Substitua pelo seu token de autenticação do Twilio
+auth_token = "seu token"  # Substitua pelo seu token de autenticação do Twilio
 client = Client(account_sid, auth_token)
 twilio_numero_whats = "whatsapp:+14155238886"
 
