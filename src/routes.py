@@ -1,46 +1,107 @@
-from src.Application.Controllers.user_controller import UserController
+from src.Application.Controllers.seller_controller import SellerController
+from src.Application.Controllers.product_controller import ProductController
+from src.Application.Controllers.sales_controller import SaleController
+from src.Application.Controllers.orders_controller import OrderController
 from flask import jsonify, make_response, request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from src.config.data_base import db
-from src.Infrastructure.Model.user import User
+from src.Infrastructure.Model.seller import Seller
+
 
 def init_routes(app):
-    @app.route('/api', methods=['GET'])
+    @app.route("/", methods=["GET"])
     def health():
-        return make_response(jsonify({
-            "mensagem": "API - OK; Docker - Up",
-        }), 200)
+        return make_response(
+            jsonify(
+                {
+                    "mensagem": "API - OK; Docker - Up",
+                }
+            ),
+            200,
+        )
 
-    @app.route('/api/sellers', methods=['POST'])
+    # Rotas seller
+    @app.route("/register/vendedores", methods=["POST"])
     def create_seller():
-        return UserController.create_seller()
+        return SellerController.create_seller()
 
-    @app.route('/api/sellers/activate', methods=['POST'])
+    @app.route("/vendedores/activate", methods=["POST"])
     def activate_seller():
-        return UserController.activate_seller()
+        return SellerController.activate_seller()
 
-    @app.route('/api/auth/login', methods=['POST'])
+    # Rotas login
+    @app.route("/auth/login", methods=["POST"])
     def login():
-        email = request.json.get('email', None)
-        password = request.json.get('password', None)
+        email = request.json.get("email", None)
+        password = request.json.get("password", None)
+        return SellerController.login(email, password)
 
-        # Verifique as credenciais do usuário
-        user = User.query.filter_by(email=email).first()
-        if user and user.password == password:  # Em produção, use hashing para senhas
-            # Use o e-mail como identity (string) e adicione claims extras, se necessário
-            access_token = create_access_token(
-                identity=email,  # O identity agora é uma string
-                additional_claims={"name": user.name, "status": user.status}
-            )
-            return jsonify(access_token=access_token), 200
-
-        return jsonify({"mensagem": "Credenciais inválidas"}), 401
-
-    # rota protegida para teste
-    @app.route('/api/protected', methods=['GET'])
+    # Rota protegida para teste
+    @app.route("/protected", methods=["GET"])
     @jwt_required()
     def protected():
         current_user = get_jwt_identity()  # Agora retorna apenas o e-mail
-        return jsonify({
-            "mensagem": f"Bem-vindo, {current_user}! Esta é uma rota protegida."
-        }), 200
+        return (
+            jsonify(
+                {"mensagem": f"Bem-vindo, {current_user}! Esta é uma rota protegida."}
+            ),
+            200,
+        )
+
+    # Rotas produtos
+    @app.route("/products", methods=["POST"])
+    @jwt_required()
+    def create_product():
+        return ProductController.create_product()
+
+    @app.route("/products", methods=["GET"])
+    @jwt_required()
+    def list_products():
+        return ProductController.list_products()
+
+    @app.route("/products/<int:product_id>", methods=["PUT"])
+    @jwt_required()
+    def update_product(product_id):
+        return ProductController.update_product(product_id)
+
+    @app.route("/products/<int:product_id>", methods=["GET"])
+    @jwt_required()
+    def get_product_details(product_id):
+        return ProductController.get_product_details(product_id)
+
+    @app.route("/products/<int:product_id>/inactivate", methods=["PATCH"])
+    @jwt_required()
+    def inactivate_product(product_id):
+        return ProductController.inactivate_product(product_id)
+
+    # Rotas vendas
+    @app.route("/sales", methods=["POST"])
+    @jwt_required()
+    def create_sale():
+        return SaleController.create_sale()
+
+    # Rotas orders
+    @app.route("/orders", methods=["POST"])
+    @jwt_required()
+    def create_order():
+        return OrderController.create_order()
+
+    @app.route("/orders", methods=["GET"])
+    @jwt_required()
+    def list_orders():
+        return OrderController.list_orders()
+
+    @app.route("/orders/<int:order_id>", methods=["GET"])
+    @jwt_required()
+    def get_order_details(order_id):
+        return OrderController.get_order_details(order_id)
+
+    @app.route("/orders/<int:order_id>", methods=["PUT"])
+    @jwt_required()
+    def update_order(order_id):
+        return OrderController.update_order(order_id)
+
+    @app.route("/orders/<int:order_id>", methods=["DELETE"])
+    @jwt_required()
+    def delete_order(order_id):
+        return OrderController.delete_order(order_id)
