@@ -10,6 +10,8 @@ class Product(db.Model):
     name = db.Column(db.String(100), nullable=False)
     price = db.Column(db.Float, nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String(20), nullable=False, default="Ativo")
+    img = db.Column(db.String(255), nullable=True)
     seller_id = db.Column(
         db.Integer, db.ForeignKey("sellers.id"), nullable=False
     )  # Certifique-se de que "sellers.id" está correto
