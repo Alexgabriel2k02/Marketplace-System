@@ -26,14 +26,16 @@ class SellerController:
 
     @staticmethod
     def login(email, password):
-        # Verifique as credenciais do usuário
+    # Verifique as credenciais do usuário
         user = Seller.query.filter_by(email=email).first()
-        if user and user.password == password:  # Em produção, use hashing para senhas
-            # Use o e-mail como identity (string) e adicione claims extras, se necessário
+        if user and user.password == password:  # trocar depois para hashing (senhas)
+        # Use o ID do usuário como identity e adicione claims extras, se necessário
             access_token = create_access_token(
-                identity=email,  # O identity agora é uma string
+                identity=user.id,  
                 additional_claims={"name": user.name, "status": user.status},
-            )
+        )
             return jsonify(access_token=access_token), 200
 
         return jsonify({"mensagem": "Credenciais inválidas"}), 401
+
+
