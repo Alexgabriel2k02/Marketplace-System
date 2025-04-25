@@ -25,7 +25,6 @@ class ProductService:
         db.session.commit()
         return {
             "message": "Produto criado com sucesso",
-            "product": product.to_dict(),
         }, 201
 
     @staticmethod
