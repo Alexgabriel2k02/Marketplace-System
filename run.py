@@ -7,6 +7,7 @@ from src.Infrastructure.Model.seller import Seller
 from src.Infrastructure.Model.product import Product
 from src.Infrastructure.Model.sales import Sale
 from src.Infrastructure.Model.orders import Order
+from src.Infrastructure.Model.client import Client
 from datetime import timedelta
 
 # Quando o frontend React estiver pronto, substituir por:
