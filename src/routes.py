@@ -2,6 +2,7 @@ from src.Application.Controllers.seller_controller import SellerController
 from src.Application.Controllers.product_controller import ProductController
 from src.Application.Controllers.sales_controller import SaleController
 from src.Application.Controllers.orders_controller import OrderController
+from src.Application.Controllers.client_controller import ClientController
 from flask import jsonify, make_response, request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from src.config.data_base import db
@@ -30,6 +31,7 @@ def init_routes(app):
         return SellerController.activate_seller()
 
     # Rotas login
+    # Rotas login seller
     @app.route("/auth/login", methods=["POST"])
     def login():
         email = request.json.get("email", None)
@@ -105,3 +107,18 @@ def init_routes(app):
     @jwt_required()
     def delete_order(order_id):
         return OrderController.delete_order(order_id)
+
+    # Rotas client
+    @app.route("/register/clientes", methods=["POST"])
+    def create_client():
+        return ClientController.create_client()
+
+    @app.route("/clientes", methods=["GET"])
+    def list_clients():
+        return ClientController.list_clients()
+
+    @app.route("/login/clientes", methods = ["POST"])
+    def login_client():
+        email = request.json.get("email", None)
+        password = request.json.get("password", None)
+        return ClientController.login(email, password)
