@@ -14,7 +14,7 @@ class Product(db.Model):
     img = db.Column(db.String(255), nullable=True)
     seller_id = db.Column(
         db.Integer, db.ForeignKey("sellers.id"), nullable=False
-    )  # Certifique-se de que "sellers.id" está correto
+    )  
 
     def to_dict(self):
         return {
