@@ -5,42 +5,38 @@ from src.config.data_base import db
 class ProductService:
     @staticmethod
     def create_product(data, seller_id):
-
-        # Validações
-        if not data.get("name") or not data.get("price") or not data.get("quantity"):
+        
+        if not data.get("name") or not isinstance(data.get("price"), (int, float)) or data.get("price") <= 0 or not isinstance(data.get("quantity"), int) or data.get("quantity") <= 0:
             return {
-                "message": "Os campos 'name', 'price' e 'quantity' são obrigatórios"
+                "mensagem": "Os campos 'name', 'price' e 'quantity' são obrigatórios e devem conter valores válidos"
             }, 400
 
-        # Cria o produto
         product = Product(
             name=data["name"],
             price=data["price"],
             quantity=data["quantity"],
-            status=data.get("status", "Ativo"),
+            status=data.get("status", "activated"),
             img=data.get("img"),
             seller_id=seller_id,
         )
         db.session.add(product)
         db.session.commit()
         return {
-            "message": "Produto criado com sucesso",
+            "mensagem": "Produto criado com sucesso",
         }, 201
 
     @staticmethod
-    def list_products(seller_id):
-
-        products = Product.query.filter_by(seller_id=seller_id).all()
-        return [product.to_dict() for product in products]
+    def list_products(seller_id, page=1, per_page=10):
+        products = Product.query.filter_by(seller_id=seller_id, status="Ativo").paginate(page=page, per_page=per_page, error_out=False)
+        return [product.to_dict() for product in products.items]
 
     @staticmethod
     def update_product(product_id, data, seller_id):
-
         product = Product.query.filter_by(id=product_id, seller_id=seller_id).first()
         if not product:
-            return {"message": "Produto não encontrado"}, 404
+            return {"mensagem": "Produto não encontrado ou não pertence ao vendedor"}, 404
 
-        # Atualiza os campos
+
         product.name = data.get("name", product.name)
         product.price = data.get("price", product.price)
         product.quantity = data.get("quantity", product.quantity)
@@ -48,25 +44,26 @@ class ProductService:
         product.img = data.get("img", product.img)
         db.session.commit()
         return {
-            "message": "Produto atualizado com sucesso",
-            "product": product.to_dict(),
+            "mensagem": "Produto atualizado com sucesso",
+            "produto": product.to_dict(),
         }, 200
 
     @staticmethod
     def get_product_details(product_id, seller_id):
-
         product = Product.query.filter_by(id=product_id, seller_id=seller_id).first()
         if not product:
-            return {"message": "Produto não encontrado"}, 404
+            return {"mensagem": "Produto não encontrado ou não pertence ao vendedor"}, 404
         return product.to_dict(), 200
 
     @staticmethod
     def inactivate_product(product_id, seller_id):
-
         product = Product.query.filter_by(id=product_id, seller_id=seller_id).first()
         if not product:
-            return {"message": "Produto não encontrado"}, 404
+            return {"mensagem": "Produto não encontrado ou não pertence ao vendedor"}, 404
 
-        product.status = "Inativo"
+        if product.status == "inativo":
+            return {"mensagem": "O produto já está inativo"}, 400
+
+        product.status = "inativo" 
         db.session.commit()
-        return {"message": "Produto inativado com sucesso"}, 200
+        return {"mensagem": "Produto inativado com sucesso"}, 200
