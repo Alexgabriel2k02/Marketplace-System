@@ -6,7 +6,7 @@ from src.Application.Controllers.client_controller import ClientController
 from flask import jsonify, make_response, request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from src.config.data_base import db
-from src.Infrastructure.Model.seller import Seller
+
 
 
 def init_routes(app):
@@ -21,7 +21,7 @@ def init_routes(app):
             200,
         )
 
-    # Rotas seller
+
     @app.route("/register/vendedores", methods=["POST"])
     def create_seller():
         return SellerController.create_seller()
@@ -30,19 +30,18 @@ def init_routes(app):
     def activate_seller():
         return SellerController.activate_seller()
 
-    # Rotas login
-    # Rotas login seller
+   
     @app.route("/auth/login", methods=["POST"])
     def login():
         email = request.json.get("email", None)
         password = request.json.get("password", None)
         return SellerController.login(email, password)
 
-    # Rota protegida para teste
+ 
     @app.route("/protected", methods=["GET"])
     @jwt_required()
     def protected():
-        current_user = get_jwt_identity()  # Agora retorna apenas o e-mail
+        current_user = get_jwt_identity()  
         return (
             jsonify(
                 {"mensagem": f"Bem-vindo, {current_user}! Esta é uma rota protegida."}
@@ -109,15 +108,15 @@ def init_routes(app):
         return OrderController.delete_order(order_id)
 
     # Rotas client
-    @app.route("/register/clientes", methods=["POST"])
+    @app.route("/register/clients", methods=["POST"])
     def create_client():
         return ClientController.create_client()
 
-    @app.route("/clientes", methods=["GET"])
+    @app.route("/clients", methods=["GET"])
     def list_clients():
         return ClientController.list_clients()
 
-    @app.route("/login/clientes", methods = ["POST"])
+    @app.route("/login/clients", methods = ["POST"])
     def login_client():
         email = request.json.get("email", None)
         password = request.json.get("password", None)
