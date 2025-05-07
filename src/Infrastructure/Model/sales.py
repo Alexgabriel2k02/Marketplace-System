@@ -8,7 +8,9 @@ class Sale(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
     seller_id = db.Column(db.Integer, db.ForeignKey("sellers.id"), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
-    total_price = db.Column(db.Float, nullable=False)
+    unit_price = db.Column(db.Float, nullable=False)  
+    total_price = db.Column(db.Float, nullable=False)  
+    created_at = db.Column(db.DateTime, default=db.func.now())  
 
     def to_dict(self):
         return {
@@ -16,5 +18,7 @@ class Sale(db.Model):
             "product_id": self.product_id,
             "seller_id": self.seller_id,
             "quantity": self.quantity,
+            "unit_price": self.unit_price,  
             "total_price": self.total_price,
+            "created_at": self.created_at.strftime("%Y-%m-%d %H:%M:%S")  
         }
