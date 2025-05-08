@@ -26,9 +26,9 @@ class ProductService:
         }, 201
 
     @staticmethod
-    def list_products(seller_id, page=1, per_page=10):
-        products = Product.query.filter_by(seller_id=seller_id, status="Ativo").paginate(page=page, per_page=per_page, error_out=False)
-        return [product.to_dict() for product in products.items]
+    def list_products(seller_id,):
+        products = Product.query.filter_by(seller_id=seller_id, status="Ativo").all()
+        return [product.to_dict() for product in products]
 
     @staticmethod
     def update_product(product_id, data, seller_id):
