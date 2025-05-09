@@ -11,8 +11,8 @@ from src.Infrastructure.Model.client import Client
 from datetime import timedelta
 
 # Quando o frontend React estiver pronto, substituir por:
-# CORS(app, resources={r"/*": {"origins": "http://localhost:porta"}})
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+
 
 
 app.config["JWT_SECRET_KEY"] = (
