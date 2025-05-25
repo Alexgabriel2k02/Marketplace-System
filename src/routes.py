@@ -121,4 +121,10 @@ def create_app():
         password = request.json.get("password", None)
         return ClientController.login(email, password)
 
+    @app.route("/sellers", methods=["GET", "OPTIONS"])
+    def list_sellers():
+        if request.method == "OPTIONS":
+            return '', 200
+        return SellerController.list_sellers()
+
     return app

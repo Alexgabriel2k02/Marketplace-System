@@ -67,3 +67,9 @@ class SellerService:
             return user
 
         return None
+
+    @staticmethod
+    def list_sellers():
+        sellers = Seller.query.all()
+        sellers_list = [seller.to_dict() for seller in sellers]
+        return sellers_list, 200

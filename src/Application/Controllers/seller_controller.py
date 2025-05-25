@@ -42,4 +42,9 @@ class SellerController:
         user_dict.pop("verification_code", None)
         return jsonify(token=access_token, user=user_dict), 200
 
+    @staticmethod
+    def list_sellers():
+        result, status_code = SellerService.list_sellers()
+        return jsonify(result), status_code
+
 
