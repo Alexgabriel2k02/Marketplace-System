@@ -69,6 +69,24 @@ class ProductService:
         return {"mensagem": "Produto inativado com sucesso"}, 200
 
     @staticmethod
+    def toggle_product_status(product_id, seller_id):
+        product = Product.query.filter_by(id=product_id, seller_id=seller_id).first()
+        if not product:
+            return {"mensagem": "Produto não encontrado ou não pertence ao vendedor"}, 404
+
+        # Padronize os status para "Ativo" e "Inativo"
+        if product.status == "Ativo":
+            product.status = "Inativo"
+        else:
+            product.status = "Ativo"
+        db.session.commit()
+        return {
+            "mensagem": f"Status do produto alterado para {product.status}",
+            "produto": product.to_dict(),
+        }, 200
+
+
+    @staticmethod
     def delete_product(product_id, seller_id):
         product = Product.query.filter_by(id=product_id, seller_id=seller_id).first()
         if not product:

@@ -56,6 +56,12 @@ class ProductController:
         return jsonify(result), status_code
 
     @staticmethod
+    def toggle_product_status(product_id):
+        seller_id = get_jwt_identity()
+        result, status_code = ProductService.toggle_product_status(product_id, seller_id)
+        return jsonify(result), status_code    
+
+    @staticmethod
     def list_products():
         seller_id = get_jwt_identity()
         result, status_code = ProductService.list_products(seller_id)

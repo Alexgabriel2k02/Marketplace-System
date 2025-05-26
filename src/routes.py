@@ -74,6 +74,11 @@ def create_app():
     def inactivate_product(product_id):
         return ProductController.inactivate_product(product_id)
     
+    @app.route("/products/<int:product_id>/toggle-status", methods=["PATCH"])
+    @jwt_required()
+    def toggle_product_status(product_id):
+        return ProductController.toggle_product_status(product_id)
+    
     @app.route("/products/<int:product_id>", methods=["DELETE"])
     @jwt_required()
     def delete_product(product_id):
