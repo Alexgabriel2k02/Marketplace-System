@@ -67,3 +67,13 @@ class ProductService:
         product.status = "inativo" 
         db.session.commit()
         return {"mensagem": "Produto inativado com sucesso"}, 200
+
+    @staticmethod
+    def delete_product(product_id, seller_id):
+        product = Product.query.filter_by(id=product_id, seller_id=seller_id).first()
+        if not product:
+            return {"mensagem": "Produto não encontrado ou não pertence ao vendedor"}, 404
+
+        db.session.delete(product)
+        db.session.commit()
+        return {"mensagem": "Produto deletado com sucesso"}, 200

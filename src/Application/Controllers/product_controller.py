@@ -42,6 +42,12 @@ class ProductController:
         seller_id = get_jwt_identity()
         result, status_code = ProductService.get_product_details(product_id, seller_id)
         return jsonify(result), status_code
+    
+    @staticmethod
+    def delete_product(product_id):
+        seller_id = get_jwt_identity()
+        result, status_code = ProductService.delete_product(product_id, seller_id)
+        return jsonify(result), status_code
 
     @staticmethod
     def inactivate_product(product_id):

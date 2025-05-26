@@ -73,6 +73,11 @@ def create_app():
     @jwt_required()
     def inactivate_product(product_id):
         return ProductController.inactivate_product(product_id)
+    
+    @app.route("/products/<int:product_id>", methods=["DELETE"])
+    @jwt_required()
+    def delete_product(product_id):
+        return ProductController.delete_product(product_id)
 
     # Rotas vendas
     @app.route("/sales", methods=["POST"])
