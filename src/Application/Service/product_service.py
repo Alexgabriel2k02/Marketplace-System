@@ -27,7 +27,7 @@ class ProductService:
 
     @staticmethod
     def list_products(seller_id):
-        products = Product.query.filter_by(seller_id=seller_id, status="Ativo").all()
+        products = Product.query.filter_by(seller_id=seller_id).all()  
         return [product.to_dict() for product in products], 200
 
     @staticmethod
@@ -51,7 +51,6 @@ class ProductService:
             "mensagem": "Produto atualizado com sucesso",
             "produto": product.to_dict(),
         }, 200
-    
 
     @staticmethod
     def get_product_details(product_id, seller_id):
