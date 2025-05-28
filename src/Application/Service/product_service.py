@@ -15,7 +15,7 @@ class ProductService:
             name=data["name"],
             price=data["price"],
             quantity=data["quantity"],
-            status=data.get("status", "activated"),
+            status="Ativo",
             img=data.get("img"),
             seller_id=seller_id,
         )
@@ -41,12 +41,17 @@ class ProductService:
         product.price = data.get("price", product.price)
         product.quantity = data.get("quantity", product.quantity)
         product.status = data.get("status", product.status)
-        product.img = data.get("img", product.img)
+
+        # Só atualize a imagem se uma nova for enviada
+        if "img" in data and data["img"] is not None:
+            product.img = data["img"]
+
         db.session.commit()
         return {
             "mensagem": "Produto atualizado com sucesso",
             "produto": product.to_dict(),
         }, 200
+    
 
     @staticmethod
     def get_product_details(product_id, seller_id):
@@ -61,10 +66,10 @@ class ProductService:
         if not product:
             return {"mensagem": "Produto não encontrado ou não pertence ao vendedor"}, 404
 
-        if product.status == "inativo":
+        if product.status == "Inativo":
             return {"mensagem": "O produto já está inativo"}, 400
 
-        product.status = "inativo" 
+        product.status = "Inativo"
         db.session.commit()
         return {"mensagem": "Produto inativado com sucesso"}, 200
 
