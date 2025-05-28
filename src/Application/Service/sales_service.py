@@ -35,7 +35,6 @@ class SaleService:
         if product.quantity < quantity:
             return {"mensagem": "Estoque insuficiente"}, 400
 
-        # Registrar a venda
         sale = Sale(
             product_id=product_id,
             seller_id=seller_id,
@@ -46,6 +45,8 @@ class SaleService:
         db.session.add(sale)
 
         product.quantity -= quantity
+        if product.quantity == 0:
+            product.status = "Inativo"
         db.session.commit()
 
         print(f"Venda registrada com sucesso: sale_id={sale.id}")
