@@ -72,6 +72,7 @@ class ProductController:
             name = request.form.get('name')
             price = request.form.get('price')
             quantity = request.form.get('quantity')
+            status = request.form.get('status')  
             img_file = request.files.get('img')
             img_path = None
 
@@ -86,6 +87,7 @@ class ProductController:
                 "name": name,
                 "price": float(price) if price else None,
                 "quantity": int(quantity) if quantity else None,
+                "status": status, 
                 "img": img_path,
             }
         else:
