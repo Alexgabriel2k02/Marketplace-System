@@ -12,7 +12,6 @@ class ProductController:
         name = request.form.get('name')
         price = request.form.get('price')
         quantity = request.form.get('quantity')
-        status = request.form.get('status', 'activated')
 
         img_file = request.files.get('img')
         img_path = None
@@ -30,7 +29,6 @@ class ProductController:
             "name": name,
             "price": float(price) if price else None,
             "quantity": int(quantity) if quantity else None,
-            "status": status,
             "img": img_path,
         }
 
@@ -65,4 +63,35 @@ class ProductController:
     def list_products():
         seller_id = get_jwt_identity()
         result, status_code = ProductService.list_products(seller_id)
+        return jsonify(result), status_code
+
+    @staticmethod
+    def update_product(product_id):
+        seller_id = get_jwt_identity()
+        if request.content_type and request.content_type.startswith('multipart/form-data'):
+            name = request.form.get('name')
+            price = request.form.get('price')
+            quantity = request.form.get('quantity')
+            img_file = request.files.get('img')
+            img_path = None
+
+            if img_file:
+                filename = secure_filename(img_file.filename)
+                upload_folder = current_app.config['UPLOAD_FOLDER']
+                img_full_path = os.path.join(upload_folder, filename)
+                img_file.save(img_full_path)
+                img_path = f'uploads/{filename}'
+
+            data = {
+                "name": name,
+                "price": float(price) if price else None,
+                "quantity": int(quantity) if quantity else None,
+                "img": img_path,
+            }
+        else:
+            data = request.get_json()
+            if data is None:
+                return jsonify({"mensagem": "JSON inválido ou não enviado"}), 400
+
+        result, status_code = ProductService.update_product(product_id, data, seller_id)
         return jsonify(result), status_code
