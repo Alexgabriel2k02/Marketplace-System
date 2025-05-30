@@ -11,3 +11,8 @@ class SaleController:
         data = request.json
         result, status_code = SaleService.create_sale(data, seller_id)
         return jsonify(result), status_code
+
+    @staticmethod
+    def list_sales():
+        result, status_code = SaleService.list_sales()
+        return jsonify(result), status_code

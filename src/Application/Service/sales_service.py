@@ -51,3 +51,9 @@ class SaleService:
 
         print(f"Venda registrada com sucesso: sale_id={sale.id}")
         return {"mensagem": "Venda registrada com sucesso", "sale_id": sale.id}, 201
+
+    @staticmethod
+    def list_sales():
+        sales = Sale.query.order_by(Sale.created_at.desc()).all()
+        sales_list = [sale.to_dict() for sale in sales]
+        return sales_list, 200

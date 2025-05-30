@@ -90,6 +90,11 @@ def create_app():
     def create_sale():
         return SaleController.create_sale()
 
+    @app.route("/sales", methods=["GET"])
+    @jwt_required()
+    def list_sales():
+        return SaleController.list_sales()
+
     # Rotas orders
     @app.route("/orders", methods=["POST"])
     @jwt_required()
