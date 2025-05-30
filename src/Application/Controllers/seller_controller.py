@@ -26,16 +26,25 @@ class SellerController:
 
     @staticmethod
     def login(email, password):
-    # Verifique as credenciais do usuário
         user = Seller.query.filter_by(email=email).first()
-        if user and user.password == password:  # trocar depois para hashing (senhas)
-        # Use o ID do usuário como identity e adicione claims extras, se necessário
-            access_token = create_access_token(
-                identity=user.id,  
-                additional_claims={"name": user.name, "status": user.status},
-        )
-            return jsonify(access_token=access_token), 200
+        if not user or user.password != password:
+            return jsonify({"mensagem": "Credenciais inválidas"}), 401
 
-        return jsonify({"mensagem": "Credenciais inválidas"}), 401
+        if not user.name or not user.status:
+            return jsonify({"mensagem": "Dados do vendedor incompletos. Contate o suporte."}), 400
+
+        access_token = create_access_token(
+            identity=user.id,
+            additional_claims={"name": user.name, "status": user.status},
+        )
+        user_dict = user.to_dict()
+        user_dict.pop("password", None)
+        user_dict.pop("verification_code", None)
+        return jsonify(token=access_token, user=user_dict), 200
+
+    @staticmethod
+    def list_sellers():
+        result, status_code = SellerService.list_sellers()
+        return jsonify(result), status_code
 
 

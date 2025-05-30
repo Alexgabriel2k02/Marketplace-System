@@ -1,26 +1,32 @@
+from flask import Flask, jsonify, make_response, request, send_from_directory, current_app
+from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_cors import CORS
+
 from src.Application.Controllers.seller_controller import SellerController
 from src.Application.Controllers.product_controller import ProductController
 from src.Application.Controllers.sales_controller import SaleController
 from src.Application.Controllers.orders_controller import OrderController
 from src.Application.Controllers.client_controller import ClientController
-from flask import jsonify, make_response, request
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from src.config.data_base import db
 
 
+def create_app():
+    app = Flask(__name__)
+    app.config['UPLOAD_FOLDER'] = 'uploads'  # ajuste se necessário
 
-def init_routes(app):
+    # Habilita CORS para o frontend
+    CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
+
+    # Rota para servir imagens
+    @app.route('/uploads/<filename>')
+    def uploaded_file(filename):
+        return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+
     @app.route("/", methods=["GET"])
     def health():
         return make_response(
-            jsonify(
-                {
-                    "mensagem": "API - OK; Docker - Up",
-                }
-            ),
-            200,
+            jsonify({"mensagem": "API - OK; Docker - Up"}), 200
         )
-
 
     @app.route("/register/vendedores", methods=["POST"])
     def create_seller():
@@ -30,24 +36,17 @@ def init_routes(app):
     def activate_seller():
         return SellerController.activate_seller()
 
-   
     @app.route("/auth/login", methods=["POST"])
     def login():
         email = request.json.get("email", None)
         password = request.json.get("password", None)
         return SellerController.login(email, password)
 
- 
     @app.route("/protected", methods=["GET"])
     @jwt_required()
     def protected():
-        current_user = get_jwt_identity()  
-        return (
-            jsonify(
-                {"mensagem": f"Bem-vindo, {current_user}! Esta é uma rota protegida."}
-            ),
-            200,
-        )
+        current_user = get_jwt_identity()
+        return jsonify({"mensagem": f"Bem-vindo, {current_user}! Esta é uma rota protegida."}), 200
 
     # Rotas produtos
     @app.route("/products", methods=["POST"])
@@ -74,12 +73,27 @@ def init_routes(app):
     @jwt_required()
     def inactivate_product(product_id):
         return ProductController.inactivate_product(product_id)
+    
+    @app.route("/products/<int:product_id>/toggle-status", methods=["PATCH"])
+    @jwt_required()
+    def toggle_product_status(product_id):
+        return ProductController.toggle_product_status(product_id)
+    
+    @app.route("/products/<int:product_id>", methods=["DELETE"])
+    @jwt_required()
+    def delete_product(product_id):
+        return ProductController.delete_product(product_id)
 
     # Rotas vendas
     @app.route("/sales", methods=["POST"])
     @jwt_required()
     def create_sale():
         return SaleController.create_sale()
+
+    @app.route("/sales", methods=["GET"])
+    @jwt_required()
+    def list_sales():
+        return SaleController.list_sales()
 
     # Rotas orders
     @app.route("/orders", methods=["POST"])
@@ -116,8 +130,16 @@ def init_routes(app):
     def list_clients():
         return ClientController.list_clients()
 
-    @app.route("/login/clients", methods = ["POST"])
+    @app.route("/login/clients", methods=["POST"])
     def login_client():
         email = request.json.get("email", None)
         password = request.json.get("password", None)
         return ClientController.login(email, password)
+
+    @app.route("/sellers", methods=["GET", "OPTIONS"])
+    def list_sellers():
+        if request.method == "OPTIONS":
+            return '', 200
+        return SellerController.list_sellers()
+
+    return app
