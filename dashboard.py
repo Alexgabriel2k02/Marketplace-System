@@ -57,21 +57,32 @@ with col4:
  #pizza
 with col5:
     st.subheader("Participação dos Top 10 Produtos")
-    fig_pie, ax_pie = plt.subplots()
-    ax_pie.pie(df2["total_sold"], labels=df2["product"], autopct="%.1f%%")
+    fig_pie, ax_pie = plt.subplots(facecolor='none')
+    wedges, texts, autotexts = ax_pie.pie(
+        df2["total_sold"],
+        labels=df2["product"],
+        autopct="%.1f%%",
+        textprops={'color': 'white'}
+    )
     ax_pie.axis("equal")
-    st.pyplot(fig_pie)
+    # Deixa o fundo dos textos branco
+    for text in texts + autotexts:
+        text.set_color('white')
+    st.pyplot(fig_pie, transparent=True)
 
 st.markdown("---")
 
+# Abaixo: Gráfico de barras (top 10 produtos mais vendidos)
 st.subheader("Top 10 Produtos Mais Vendidos")
-fig_bar, ax_bar = plt.subplots(figsize=(10, 6))
+fig_bar, ax_bar = plt.subplots(figsize=(10, 6), facecolor='none')
 ax_bar.bar(df2["product"], df2["total_sold"], color="#1f77b4")
-ax_bar.set_xlabel("Produto")
-ax_bar.set_ylabel("Quantidade Vendida")
-ax_bar.set_title("Top 10 Produtos Mais Vendidos")
+ax_bar.set_xlabel("Produto", color='white')
+ax_bar.set_ylabel("Quantidade Vendida", color='white')
+ax_bar.set_title("Top 10 Produtos Mais Vendidos", color='white')
+ax_bar.tick_params(axis='x', colors='white')
+ax_bar.tick_params(axis='y', colors='white')
 plt.xticks(rotation=45)
 plt.tight_layout()
-st.pyplot(fig_bar)
+st.pyplot(fig_bar, transparent=True)
 
 conn.close()
