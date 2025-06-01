@@ -3,6 +3,7 @@ import pymysql
 import matplotlib.pyplot as plt
 import streamlit as st
 
+st.set_page_config(layout="wide")
 st.title("Dashboard Marketplace")
 
 # Conexão com o banco
@@ -19,47 +20,58 @@ def get_connection():
 
 conn = get_connection()
 
-# Vendas por vendedor
-query = """
+# Faturamento por vendedor
+df = pd.read_sql("""
 SELECT s.name AS seller, COUNT(sa.id) AS total_sales, SUM(sa.total_price) AS total_revenue
 FROM sales sa
 JOIN sellers s ON sa.seller_id = s.id
 GROUP BY s.name
 ORDER BY total_revenue DESC;
-"""
-df = pd.read_sql(query, conn)
-st.subheader("Faturamento por Vendedor")
-st.dataframe(df)
+""", conn)
 
-fig1, ax1 = plt.subplots(figsize=(10,6))
-ax1.bar(df['seller'], df['total_revenue'])
-ax1.set_title('Faturamento por Vendedor')
-ax1.set_xlabel('Vendedor')
-ax1.set_ylabel('Faturamento (R$)')
-plt.xticks(rotation=45)
-plt.tight_layout()
-st.pyplot(fig1)
-
-# Produtos mais vendidos
-query2 = """
+#  Top 10 produtos mais vendidos
+df2 = pd.read_sql("""
 SELECT p.name AS product, SUM(sa.quantity) AS total_sold
 FROM sales sa
 JOIN products p ON sa.product_id = p.id
 GROUP BY p.name
 ORDER BY total_sold DESC
 LIMIT 10;
-"""
-df2 = pd.read_sql(query2, conn)
-st.subheader("Top 10 Produtos Mais Vendidos")
-st.dataframe(df2)
+""", conn)
 
-fig2, ax2 = plt.subplots(figsize=(10,6))
-ax2.bar(df2['product'], df2['total_sold'])
-ax2.set_title('Top 10 Produtos Mais Vendidos')
-ax2.set_xlabel('Produto')
-ax2.set_ylabel('Quantidade Vendida')
+# --- LAYOUT ---
+
+col1, col2, col3 = st.columns(3)
+col1.metric("1º Vendedor", df.iloc[0]["seller"], f'R$ {df.iloc[0]["total_revenue"]:,.2f}')
+col2.metric("2º Vendedor", df.iloc[1]["seller"], f'R$ {df.iloc[1]["total_revenue"]:,.2f}')
+col3.metric("3º Vendedor", df.iloc[2]["seller"], f'R$ {df.iloc[2]["total_revenue"]:,.2f}')
+
+st.markdown("---")
+
+#  Gráfico de linha 
+col4, col5 = st.columns((2, 1))
+with col4:
+    st.subheader("Faturamento por Vendedor")
+    st.line_chart(df.set_index("seller")["total_revenue"])
+ 
+ #pizza
+with col5:
+    st.subheader("Participação dos Top 10 Produtos")
+    fig_pie, ax_pie = plt.subplots()
+    ax_pie.pie(df2["total_sold"], labels=df2["product"], autopct="%.1f%%")
+    ax_pie.axis("equal")
+    st.pyplot(fig_pie)
+
+st.markdown("---")
+
+st.subheader("Top 10 Produtos Mais Vendidos")
+fig_bar, ax_bar = plt.subplots(figsize=(10, 6))
+ax_bar.bar(df2["product"], df2["total_sold"], color="#1f77b4")
+ax_bar.set_xlabel("Produto")
+ax_bar.set_ylabel("Quantidade Vendida")
+ax_bar.set_title("Top 10 Produtos Mais Vendidos")
 plt.xticks(rotation=45)
 plt.tight_layout()
-st.pyplot(fig2)
+st.pyplot(fig_bar)
 
 conn.close()
