@@ -15,7 +15,8 @@ def get_connection():
         password='Joao@321',
         database='marketplacesystem',
         port=3306,
-        connect_timeout=10
+        connect_timeout=10,
+        autocommit=True
     )
 
 conn = get_connection()
@@ -84,5 +85,3 @@ ax_bar.tick_params(axis='y', colors='white')
 plt.xticks(rotation=45)
 plt.tight_layout()
 st.pyplot(fig_bar, transparent=True)
-
-conn.close()
