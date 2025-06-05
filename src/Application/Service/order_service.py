@@ -6,13 +6,19 @@ class OrderService:
     @staticmethod
     def create_order(data):
         client_id = data.get("client_id")
-        product_name = data.get("product_name")
+        product_id = data.get("product_id")
         quantity = data.get("quantity")
+        status = data.get("status", "Pendente")
 
-        if not client_id or not product_name or not quantity:
+        if not client_id or not product_id or not quantity:
             return {"mensagem": "Todos os campos são obrigatórios"}, 400
 
-        order = Order(client_id=client_id, product_name=product_name, quantity=quantity)
+        order = Order(
+            client_id=client_id,
+            product_id=product_id,
+            quantity=quantity,
+            status=status,
+        )
         db.session.add(order)
         db.session.commit()
         return {"mensagem": "Pedido criado com sucesso", "order": order.to_dict()}, 201
