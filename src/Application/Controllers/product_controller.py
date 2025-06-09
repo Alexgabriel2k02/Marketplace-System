@@ -64,6 +64,12 @@ class ProductController:
         seller_id = get_jwt_identity()
         result, status_code = ProductService.list_products(seller_id)
         return jsonify(result), status_code
+    
+    @staticmethod
+    def copy_product(product_id):
+        seller_id = get_jwt_identity()
+        result, status_code = ProductService.copy_product(product_id, seller_id)
+        return jsonify(result), status_code
 
     @staticmethod
     def update_product(product_id):
@@ -97,3 +103,4 @@ class ProductController:
 
         result, status_code = ProductService.update_product(product_id, data, seller_id)
         return jsonify(result), status_code
+    

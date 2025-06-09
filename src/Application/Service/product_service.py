@@ -31,6 +31,24 @@ class ProductService:
         return [product.to_dict() for product in products], 200
 
     @staticmethod
+    def copy_product(product_id, seller_id):
+        product = Product.query.filter_by(id=product_id, seller_id=seller_id).first()
+        if not product:
+            return {"mensagem": "Produto não encontrado ou não pertence ao vendedor"}, 404
+
+        new_product = Product(
+            name=product.name,
+            price=product.price,
+            quantity=product.quantity,
+            status=product.status,
+            img=product.img,
+            seller_id=product.seller_id,
+        )
+        db.session.add(new_product)
+        db.session.commit()
+        return {"mensagem": "Produto copiado com sucesso", "produto": new_product.to_dict()}, 201
+
+    @staticmethod
     def update_product(product_id, data, seller_id):
         product = Product.query.filter_by(id=product_id, seller_id=seller_id).first()
         if not product:

@@ -84,6 +84,11 @@ def create_app():
     def delete_product(product_id):
         return ProductController.delete_product(product_id)
 
+    @app.route("/products/<int:product_id>/copy", methods=["POST"])
+    @jwt_required()
+    def copy_product(product_id):
+        return ProductController.copy_product(product_id)
+
     # Rotas vendas
     @app.route("/sales", methods=["POST"])
     @jwt_required()
