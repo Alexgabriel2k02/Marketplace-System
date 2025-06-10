@@ -1,4 +1,5 @@
 from src.Infrastructure.Model.product import Product
+from src.Infrastructure.Model.orders import Order
 from src.config.data_base import db
 
 
@@ -117,3 +118,32 @@ class ProductService:
         db.session.delete(product)
         db.session.commit()
         return {"mensagem": "Produto deletado com sucesso"}, 200
+
+    @staticmethod
+    def apply_discount(product_id, seller_name):
+        product = Product.query.filter_by(id=product_id).first()
+        if not product:
+            return {"mensagem": "Produto não encontrado"}, 404
+
+        # Aplica 10% de desconto
+        product.price = round(product.price * 0.9, 2)
+        product.seller = seller_name  # Salva o nome do vendedor que aplicou o desconto
+
+        db.session.commit()
+        return {
+            "mensagem": "Desconto aplicado com sucesso",
+            "novo_preco": product.price,
+            "produto": product.to_dict()
+        }, 200
+
+    @staticmethod
+    def list_products_for_sale():
+        # Produtos ativos
+        active_products = Product.query.filter_by(status="Ativo").all()
+        # Produtos de pedidos pendentes (status diferente de "aprovado")
+        pending_orders = Order.query.filter(Order.status != "aprovado").all()
+        pending_product_ids = {order.product_id for order in pending_orders}
+        pending_products = Product.query.filter(Product.id.in_(pending_product_ids)).all()
+        # Unir e remover duplicatas
+        all_products = {p.id: p for p in active_products + pending_products}.values()
+        return [p.to_dict() for p in all_products], 200

@@ -16,3 +16,10 @@ class SaleController:
     def list_sales():
         result, status_code = SaleService.list_sales()
         return jsonify(result), status_code
+
+    @staticmethod
+    def realizar_venda():
+        data = request.get_json()
+        order_id = data.get("order_id")
+        # ...outros dados...
+        return SaleService.realizar_venda(order_id, ...)

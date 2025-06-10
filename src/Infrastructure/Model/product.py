@@ -15,6 +15,7 @@ class Product(db.Model):
     seller_id = db.Column(
         db.Integer, db.ForeignKey("sellers.id"), nullable=False
     )  
+    seller = db.Column(db.String(100), nullable=True)  # Nome do vendedor que aplicou o desconto
 
     def to_dict(self):
         return {
@@ -25,4 +26,5 @@ class Product(db.Model):
             "status": self.status,
             "img": self.img,
             "seller_id": self.seller_id,
+            "seller": self.seller,  # Inclui o nome do vendedor no dicionário
         }

@@ -3,6 +3,8 @@ from flask_jwt_extended import get_jwt_identity
 from werkzeug.utils import secure_filename
 import os
 from src.Application.Service.product_service import ProductService
+from src.Infrastructure.Model.seller import Seller
+from src.Infrastructure.Model.orders import Order  # Adicione este import
 
 class ProductController:
     @staticmethod
@@ -103,4 +105,17 @@ class ProductController:
 
         result, status_code = ProductService.update_product(product_id, data, seller_id)
         return jsonify(result), status_code
-    
+
+    @staticmethod
+    def apply_discount(product_id):
+        seller_id = get_jwt_identity()
+        # Buscar o nome do vendedor pelo id
+        seller = Seller.query.filter_by(id=seller_id).first()
+        seller_name = seller.name if seller else "Desconhecido"
+        result, status_code = ProductService.apply_discount(product_id, seller_name)
+        return jsonify(result), status_code
+
+    @staticmethod
+    def list_products_for_sale():
+        result, status_code = ProductService.list_products_for_sale()
+        return jsonify(result), status_code

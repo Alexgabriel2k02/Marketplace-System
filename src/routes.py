@@ -59,6 +59,10 @@ def create_app():
     def list_products():
         return ProductController.list_products()
 
+    @app.route("/products/for-sale", methods=["GET"])
+    def list_products_for_sale():
+        return ProductController.list_products_for_sale()
+
     @app.route("/products/<int:product_id>", methods=["PUT"])
     @jwt_required()
     def update_product(product_id):
@@ -88,6 +92,11 @@ def create_app():
     @jwt_required()
     def copy_product(product_id):
         return ProductController.copy_product(product_id)
+
+    @app.route("/products/<int:product_id>/discount", methods=["POST"])
+    @jwt_required()
+    def apply_discount(product_id):
+        return ProductController.apply_discount(product_id)
 
     # Rotas vendas
     @app.route("/sales", methods=["POST"])

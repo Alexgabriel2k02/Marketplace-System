@@ -1,6 +1,7 @@
 from src.Infrastructure.Model.sales import Sale
 from src.Infrastructure.Model.product import Product
 from src.Infrastructure.Model.seller import Seller
+from src.Infrastructure.Model.orders import Order  # Certifique-se de importar o model Order
 from src.config.data_base import db
 
 
@@ -9,6 +10,7 @@ class SaleService:
     def create_sale(data, seller_id):
         product_id = data.get("product_id")
         quantity = data.get("quantity")
+        order_id = data.get("order_id")  # Recebe o id do pedido
 
 
         # Validação do product_id
@@ -35,18 +37,31 @@ class SaleService:
         if product.quantity < quantity:
             return {"mensagem": "Estoque insuficiente"}, 400
 
+        # Validação do pedido
+        order = None
+        if order_id:
+            order = Order.query.filter_by(id=order_id).first()
+            if not order:
+                return {"mensagem": "Pedido não encontrado"}, 404
+
         sale = Sale(
             product_id=product_id,
             seller_id=seller_id,
             quantity=quantity,
             unit_price=product.price,
             total_price=product.price * quantity,
+            order_id=order_id  # Se sua tabela Sale tem esse campo
         )
         db.session.add(sale)
 
         product.quantity -= quantity
         if product.quantity == 0:
             product.status = "Inativo"
+
+        # Atualiza o status do pedido para aprovado, se houver pedido
+        if order:
+            order.status = "aprovado"
+
         db.session.commit()
 
         print(f"Venda registrada com sucesso: sale_id={sale.id}")
