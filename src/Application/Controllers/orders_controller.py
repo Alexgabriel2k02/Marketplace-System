@@ -5,7 +5,7 @@ from src.Application.Service.order_service import OrderService
 class OrderController:
     @staticmethod
     def create_order():
-        data = request.json
+        data = request.get_json()
         result, status = OrderService.create_order(data)
         return make_response(jsonify(result), status)
 

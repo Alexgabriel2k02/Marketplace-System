@@ -8,7 +8,7 @@ class SaleController:
     def create_sale():
 
         seller_id = get_jwt_identity()  # Obtém o ID do seller autenticado
-        data = request.json
+        data = request.get_json()  
         result, status_code = SaleService.create_sale(data, seller_id)
         return jsonify(result), status_code
 
