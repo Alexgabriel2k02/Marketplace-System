@@ -22,10 +22,13 @@ UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'upload
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
-app.config["JWT_SECRET_KEY"] = "your_jwt_secret_key"  # 🔥 Trocar por chave segura
+app.config["JWT_SECRET_KEY"] = "your_jwt_secret_key"  # trocar por chave segura
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
+CORS(app, resources={r"/*": {"origins": [
+    "http://localhost:3000",
+    "http://192.168.56.1:3000"
+]}})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
