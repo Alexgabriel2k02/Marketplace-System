@@ -8,6 +8,8 @@ from src.Infrastructure.Model.product import Product
 from src.Infrastructure.Model.sales import Sale
 from src.Infrastructure.Model.orders import Order
 from src.Infrastructure.Model.client import Client
+from src.Infrastructure.Model.payments import Payment
+from src.Infrastructure.Model.idempotency import IdempotencyKey
 from datetime import timedelta
 import os
 

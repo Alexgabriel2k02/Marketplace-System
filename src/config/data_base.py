@@ -10,7 +10,8 @@ app.config['DEBUG'] = True
 db = SQLAlchemy()
 
 def init_db(app):
-    # Substitua a string abaixo pela URI do seu banco de dados
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://usuario:senha@host:porta/nome_do_banco'
+    # URI do banco ajustada com o nome do banco e senha informados
+    # Observação: o caractere '@' na senha foi percent-encoded como '%40'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:22121396Jg%40@127.0.0.1:3306/mercado'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)

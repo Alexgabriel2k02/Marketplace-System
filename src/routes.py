@@ -5,6 +5,7 @@ from flask_cors import CORS
 from src.Application.Controllers.seller_controller import SellerController
 from src.Application.Controllers.product_controller import ProductController
 from src.Application.Controllers.sales_controller import SaleController
+from src.Application.Controllers.payments_controller import PaymentsController
 from src.Application.Controllers.orders_controller import OrderController
 from src.Application.Controllers.client_controller import ClientController
 from src.config.data_base import db
@@ -108,6 +109,11 @@ def create_app():
     @jwt_required()
     def list_sales():
         return SaleController.list_sales()
+
+    # Webhook de pagamentos (gateway) - não protegido por JWT, usa assinatura no header
+    @app.route("/payments/webhook", methods=["POST"])
+    def payments_webhook():
+        return PaymentsController.webhook()
 
     # Rotas orders
     @app.route("/orders", methods=["POST"])
