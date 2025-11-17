@@ -193,3 +193,71 @@ class SaleService:
         sales = Sale.query.order_by(Sale.created_at.desc()).all()
         sales_list = [sale.to_dict() for sale in sales]
         return sales_list, 200
+
+    @staticmethod
+    def get_sales_history(seller_id, date_from=None, date_to=None, product_id=None, min_value=None, max_value=None):
+        """
+        Retorna o histórico de vendas do vendedor com filtros opcionais.
+        
+        Parâmetros:
+        - seller_id: ID do vendedor (obrigatório)
+        - date_from: Data inicial no formato YYYY-MM-DD (opcional)
+        - date_to: Data final no formato YYYY-MM-DD (opcional)
+        - product_id: ID do produto (opcional)
+        - min_value: Valor mínimo da venda (opcional)
+        - max_value: Valor máximo da venda (opcional)
+        """
+        try:
+            query = Sale.query.filter_by(seller_id=seller_id).order_by(Sale.created_at.desc())
+            
+            # Filtro por data inicial
+            if date_from:
+                from datetime import datetime
+                try:
+                    date_from_obj = datetime.strptime(date_from, "%Y-%m-%d")
+                    query = query.filter(Sale.created_at >= date_from_obj)
+                except ValueError:
+                    return {"error": "invalid_date_format", "message": "Use o formato YYYY-MM-DD para date_from"}, 400
+            
+            # Filtro por data final
+            if date_to:
+                from datetime import datetime, timedelta
+                try:
+                    date_to_obj = datetime.strptime(date_to, "%Y-%m-%d")
+                    # Adiciona um dia para incluir vendas até o final do dia
+                    date_to_obj = date_to_obj + timedelta(days=1)
+                    query = query.filter(Sale.created_at < date_to_obj)
+                except ValueError:
+                    return {"error": "invalid_date_format", "message": "Use o formato YYYY-MM-DD para date_to"}, 400
+            
+            # Filtro por produto
+            if product_id:
+                try:
+                    product_id = int(product_id)
+                    query = query.filter_by(product_id=product_id)
+                except (ValueError, TypeError):
+                    return {"error": "invalid_product_id", "message": "product_id deve ser um número inteiro"}, 400
+            
+            # Filtro por valor mínimo
+            if min_value:
+                try:
+                    min_value = float(min_value)
+                    query = query.filter(Sale.total_price >= min_value)
+                except (ValueError, TypeError):
+                    return {"error": "invalid_min_value", "message": "min_value deve ser um número"}, 400
+            
+            # Filtro por valor máximo
+            if max_value:
+                try:
+                    max_value = float(max_value)
+                    query = query.filter(Sale.total_price <= max_value)
+                except (ValueError, TypeError):
+                    return {"error": "invalid_max_value", "message": "max_value deve ser um número"}, 400
+            
+            sales = query.all()
+            sales_list = [sale.to_dict() for sale in sales]
+            
+            return sales_list, 200
+            
+        except Exception as e:
+            return {"error": "server_error", "message": str(e)}, 500

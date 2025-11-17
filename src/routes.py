@@ -110,6 +110,11 @@ def create_app():
     def list_sales():
         return SaleController.list_sales()
 
+    @app.route("/sales/history", methods=["GET"])
+    @jwt_required()
+    def get_sales_history():
+        return SaleController.get_sales_history()
+
     # Webhook de pagamentos (gateway) - não protegido por JWT, usa assinatura no header
     @app.route("/payments/webhook", methods=["POST"])
     def payments_webhook():
