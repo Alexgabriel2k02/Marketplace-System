@@ -7,7 +7,11 @@ class Sale(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
     seller_id = db.Column(db.Integer, db.ForeignKey("sellers.id"), nullable=False)
-    order_id = db.Column(db.Integer, db.ForeignKey("orders.id"), nullable=True)
+    # `order_id` originalmente referenciava `orders.id`, mas o serviço de vendas
+    # estava atribuindo o id do Payment a este campo, causando violação de
+    # chave estrangeira (erro 500). Tornamos o campo apenas um inteiro
+    # opcional para permitir usar o id do payment como agrupador simples.
+    order_id = db.Column(db.Integer, nullable=True)
     quantity = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Float, nullable=False)  
     total_price = db.Column(db.Float, nullable=False)

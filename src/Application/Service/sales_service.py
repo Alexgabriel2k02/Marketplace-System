@@ -44,7 +44,15 @@ class SaleService:
                     pass
 
         # Buscar e bloquear produtos para evitar condições de corrida
-        product_ids = [int(item.get("product_id")) for item in items]
+        try:
+            product_ids = []
+            for item in items:
+                pid = item.get("product_id")
+                if pid is None:
+                    return {"error": "invalid_item", "message": f"product_id ausente em item: {item}"}, 400
+                product_ids.append(int(pid))
+        except (ValueError, TypeError):
+            return {"error": "invalid_item", "message": "product_id deve ser um inteiro"}, 400
         products = Product.query.filter(Product.id.in_(product_ids)).with_for_update().all()
         products_map = {p.id: p for p in products}
 
@@ -53,9 +61,9 @@ class SaleService:
 
         # Valida cada item
         for item in items:
-            pid = item.get("product_id")
+            pid = int(item.get("product_id"))
             qty = item.get("quantity")
-            if not pid or not isinstance(pid, int):
+            if pid is None:
                 return {"error": "invalid_item", "message": f"product_id inválido: {pid}"}, 400
             if not qty or not isinstance(qty, int) or qty <= 0:
                 return {"error": "invalid_item", "message": f"quantity inválida para product {pid}"}, 400
@@ -71,42 +79,43 @@ class SaleService:
 
         # A partir daqui, todos os itens possuem estoque suficiente
         try:
-            # Usar transação para criar pagamento e reservar estoque e criar vendas (associando order_id)
-            with db.session.begin():
-                # Criar registro de pagamento (simulado) em estado de processamento
-                payment = Payment(
-                    method=payment_method,
-                    status="processing",
-                    gateway_id=None,
-                    amount=recalculated_total,
-                    payload={"details": payment_details},
+            # Criar registro de pagamento (simulado) em estado de processamento
+            payment = Payment(
+                method=payment_method,
+                status="processing",
+                gateway_id=None,
+                amount=recalculated_total,
+                payload={"details": payment_details},
+            )
+            db.session.add(payment)
+            # Garantir que payment.id seja gerado (flush) antes de criar as vendas para associar order_id
+            db.session.flush()
+
+            created_sales = []
+            for item in items:
+                pid = item.get("product_id")
+                qty = item.get("quantity")
+                product = products_map[pid]
+
+                sale = Sale(
+                    product_id=pid,
+                    seller_id=seller_id,
+                    order_id=payment.id,
+                    quantity=qty,
+                    unit_price=product.price,
+                    total_price=product.price * qty,
                 )
-                db.session.add(payment)
-                # Garantir que payment.id seja gerado (flush) antes de criar as vendas para associar order_id
-                db.session.flush()
+                db.session.add(sale)
 
-                created_sales = []
-                for item in items:
-                    pid = item.get("product_id")
-                    qty = item.get("quantity")
-                    product = products_map[pid]
+                # Reservar estoque (diminuição temporária)
+                product.quantity = product.quantity - qty
+                if product.quantity <= 0:
+                    product.status = "Inativo"
 
-                    sale = Sale(
-                        product_id=pid,
-                        seller_id=seller_id,
-                        order_id=payment.id,
-                        quantity=qty,
-                        unit_price=product.price,
-                        total_price=product.price * qty,
-                    )
-                    db.session.add(sale)
+                created_sales.append(sale)
 
-                    # Reservar estoque (diminuição temporária)
-                    product.quantity = product.quantity - qty
-                    if product.quantity <= 0:
-                        product.status = "Inativo"
-
-                    created_sales.append(sale)
+            # Commit inicial: grava payment e vendas reservando estoque
+            db.session.commit()
 
             # Simular chamada ao gateway (fora da transação DB principal)
             if payment_method == "credit":
